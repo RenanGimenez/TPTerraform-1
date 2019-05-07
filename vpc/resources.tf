@@ -9,25 +9,25 @@ resource "aws_vpc" "main" {
 
 resource "aws_subnet" "public" {
   vpc_id                  = "${aws_vpc.main.id}"
-  count                   = "${length(var.azs[var.region])}" ### count = 1
-  cidr_block              = "${cidrsubnet(var.cidr_block, 8, count.index)}"
-  availability_zone       = "${element(var.azs[var.region], count.index)}"
+  count                   = "1" 
+  cidr_block              = "172.23.1.0/24"
+  availability_zone       = "eu-west-1a"
   map_public_ip_on_launch = "true"
 
   tags {
-    Name = "${var.project_name}_public_${count.index}"
+    Name = "${var.project_name}_public_1"
   }
 }
 
 resource "aws_subnet" "private" {
   vpc_id                  = "${aws_vpc.main.id}"
-  count                   = "${length(var.azs[var.region])}" ### count = 1
-  cidr_block              = "${cidrsubnet(var.cidr_block, 8, 10*count.index)}"
-  availability_zone       = "${element(var.azs[var.region], count.index)}"
+ count                   = "1" 
+  cidr_block              = "172.23.10.0/24"
+  availability_zone       = "eu-west-1a"
   map_public_ip_on_launch = "false"
 
   tags {
-    Name = "${var.project_name}_private_${count.index}"
+    Name = "${var.project_name}_private_1"
   }
 }
 resource "aws_internet_gateway" "gw" {

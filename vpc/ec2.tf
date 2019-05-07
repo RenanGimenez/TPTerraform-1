@@ -7,34 +7,40 @@ variable front_ami {
   default = "ami-0d77397e" # Ubuntu 16.04
 }
 
+variable ami_name {
+  default = "AMI Terraform" # Ubuntu 16.04
+}
+variable "ami_key_pair_name" {
+  default = "KeyTerraform"
+}
+
 variable front_instance_type {
   default = "t2.micro"
 }
 
 variable public_key {
-  default = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDrAJS4BOKEPCjd8kwr29EZ4N3dpkSr5HGT+A7HJtBawryDR9irJVZXDm7NqmKa79hkPQZytTkaZo6BiIK+nD/phV76xnxTshqn0s4+WLVMfJopI48udkHwRBvbzpWV/FoLb7aBw4ibmul/SISnLx24sLOdY9JR2OXugcaBkejWEmEK0Qy83Ri8+g/S5sLDfMbruM4b0k8RqgICSgRJWtYrDTgMzFRdGyucJtu02UruWBzl25Rj853u8JL3Uzy5mlhK2hcY+MrRSY8h2sInbXXugNZ9ixkmeb0OCaYGD8FwQ32X7p2rzyxyL0REHXpeg0H4NUTkhy/tBaC6EOLnDUWbigELW0uKB/++lWMJx9nEyS+DQ7cqBOKgKULrZHRwrv8KD+lSJUN5RulB5+kTS/tTi71TA26x+tH9mraBQbcDL3PeYeVYPJMcQj9PevNjIVHiTAqDrDPrTONL2tEP5XrCMZ2KN4bNpvm/DqX7CmkXUWhbqSEl7iqcev+4q1h3iHYDOn9Z929jMfGFGCiqQ3dJcXVFTXZp4k8zxZELbbKzsRxMePAXEe/DG7YHnLsQAixzzy0MWnj6ZUYADLwca6kKp8g/rZhuv6hf6mVXJTu3LadMguBL1gGUSJgBrpEjxL+SysXXBwQw+u1T8S+9OYV9FEoNg/0csJZ9D2YYybjgvQ== crashcourse@devops.d2si"
+  default = "AAAAB3NzaC1yc2EAAAADAQABAAABAQCQ8UsXMQoKl/zBtQ6d+25p6imtKcjQwXlHl5PSR9TiGkMF3uMr/7xc/PpjfuQ+BKee2ml+c6oFssdRGOMqU8BLf2pac1YVHi05ltP0WCzRgcEX1vhKp2b6QBQ3BXS47p9/KMvws7PjG6VK9JqUfImaviDq05phsJ32zA1DsfFRE7ZsWjE0gaSEql+zEJRRjPrdSr8b9bR8dP2kpOxTr+ISkbJm5bCAhhs5fBIqaEhgiSxOKYU5I+tjqR4U9bQ7WkKK8dQjr7Z4ornRFqnH/RPCpq4460yosX7j+O8lsD4/UGKftJcda+Gim+K+/EYtX3OF1WsX/DF9BqNuBq0lg2M1"
 }
 
-variable front_elb_port {
-  default = "80"
+resource "aws_instance" "test-ec2-instance" {
+  ami = "${var.front_ami}"
+  instance_type = "t2.micro"
+  key_name = "KeyTerraform"
+tags {
+    Name = "${var.ami_name}"
+  }
+subnet_id = "${aws_subnet.public.id}"
 }
 
-variable front_elb_protocol {
-  default = "http"
-}
-
-### Resources
-resource "aws_key_pair" "front" {
-  key_name   = "${var.project_name}-front"
-  public_key = "${var.public_key}"
-}
-
-resource "aws_instance" "front" {
-  # TO DO
-  # see https://www.terraform.io/docs/providers/aws/r/instance.html
-}
-
-output "instance_ip" {
-  # TO DO
-  
+resource "aws_security_group" "ingress-all-test" {
+name = "allow_sg"
+vpc_id = "${aws_vpc.main.id}"
+ingress {
+    cidr_blocks = [
+      "176.67.91.153/32"
+    ]
+from_port = 22
+    to_port = 22
+    protocol = "tcp"
+  }
 }
